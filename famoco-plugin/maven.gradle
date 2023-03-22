@@ -39,7 +39,7 @@ afterEvaluate {
             mavenRelease(MavenPublication) {
                 groupId = project.group
                 artifactId = project.ext.pomArtifactId
-                version = android.defaultConfig.versionName
+                version = project.version
 
                 pom {
                     name = project.ext.pomName
