@@ -1,4 +1,3 @@
-import org.jetbrains.kotlin.konan.properties.suffix
 import org.jetbrains.kotlin.util.suffixIfNot
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -94,25 +93,23 @@ tasks.register("setSnapshot") {
 val kotlinVersion: String by project
 val archivesBaseName: String by project
 android {
-    compileSdkVersion(29)
-    buildToolsVersion("30.0.2")
+    compileSdk = 33
 
     buildFeatures {
         viewBinding = true
     }
 
     defaultConfig {
-        minSdkVersion(19)
-        targetSdkVersion(29)
-        versionName(project.version.toString())
+        minSdk = 19
+        targetSdk = 33
 
-        testInstrumentationRunner("android.support.test.runner.AndroidJUnitRunner")
+        testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
         consumerProguardFiles("consumer-rules.pro")
     }
 
     buildTypes {
         getByName("release") {
-            minifyEnabled(false)
+            isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }
     }
@@ -129,10 +126,6 @@ android {
             isReturnDefaultValues = true // mock Log Android object
             isIncludeAndroidResources = true
         }
-    }
-
-    lintOptions {
-        isAbortOnError = false
     }
 
     // generate output aar with a qualified name : with version number
@@ -154,6 +147,10 @@ android {
         getByName("test").java.srcDirs("src/test/kotlin")
         getByName("androidTest").java.srcDirs("src/androidTest/kotlin")
     }
+    namespace = "org.calypsonet.keyple.plugin.famoco"
+    lint {
+        abortOnError = false
+    }
 }
 
 dependencies {
@@ -166,21 +163,21 @@ dependencies {
     //keyple
     implementation("org.eclipse.keyple:keyple-common-java-api:2.0.0")
     implementation("org.eclipse.keyple:keyple-plugin-java-api:2.0.0")
-    implementation("org.eclipse.keyple:keyple-util-java-lib:2.1.0")
+    implementation("org.eclipse.keyple:keyple-util-java-lib:2.3.0")
 
     //android
     implementation("androidx.legacy:legacy-support-v4:1.0.0")
-    implementation("androidx.appcompat:appcompat:1.1.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
 
     //logging
     implementation("org.slf4j:slf4j-api:1.7.32")
-    implementation("com.jakewharton.timber:timber:4.7.1") //Android
+    implementation("com.jakewharton.timber:timber:5.0.1") //Android
     implementation("com.arcao:slf4j-timber:3.1@aar") //SLF4J binding for Timber
 
     /** Test **/
-    testImplementation("androidx.test:core-ktx:1.3.0")
+    testImplementation("androidx.test:core-ktx:1.5.0")
     testImplementation("junit:junit:4.13.2")
-    testImplementation("io.mockk:mockk:1.9")
+    testImplementation("io.mockk:mockk:1.10.2")
     testImplementation("org.robolectric:robolectric:4.3.1")
     // famoco libs
     testImplementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))

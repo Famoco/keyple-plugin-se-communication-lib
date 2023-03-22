@@ -1,5 +1,4 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="org.calypsonet.keyple.plugin.famoco.example">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <application
         android:name="org.calypsonet.keyple.plugin.famoco.example.DemoApplication"
@@ -13,7 +12,8 @@
         <activity android:name="org.calypsonet.keyple.plugin.famoco.example.activity.MainActivity"
             android:label="Keyple Famoco demo"
             android:screenOrientation="portrait"
-            android:clearTaskOnLaunch="true">
+            android:clearTaskOnLaunch="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
