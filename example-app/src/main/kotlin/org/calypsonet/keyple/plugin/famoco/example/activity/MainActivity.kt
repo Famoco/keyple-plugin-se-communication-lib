@@ -122,14 +122,6 @@ class MainActivity : AbstractExampleActivity() {
     super.onDestroy()
   }
 
-  override fun onBackPressed() {
-    if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
-      drawerLayout.closeDrawer(GravityCompat.START)
-    } else {
-      super.onBackPressed()
-    }
-  }
-
   override fun onNavigationItemSelected(item: MenuItem): Boolean {
     if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
       drawerLayout.closeDrawer(GravityCompat.START)
@@ -334,13 +326,15 @@ class MainActivity : AbstractExampleActivity() {
 
         if (withSam) {
           addActionEvent("Process PO Opening session for transactions")
-          poTransaction.processOpening(WriteAccessLevel.LOAD)
+          poTransaction.prepareOpenSecureSession(WriteAccessLevel.LOAD)
+          poTransaction.processCommands(false)
           addResultEvent("Opening session: SUCCESS")
           val counter = readCounter(selectionsResult)
           val eventLog = HexUtil.toHex(readEventLog(selectionsResult))
 
           addActionEvent("Process PO Closing session")
-          poTransaction.processClosing()
+          poTransaction.prepareCloseSecureSession()
+          poTransaction.processCommands(false)
           addResultEvent("Closing session: SUCCESS")
 
           // In secured reading, value read elements can only be trusted if the session is closed
@@ -348,7 +342,7 @@ class MainActivity : AbstractExampleActivity() {
           addResultEvent("Counter value: $counter")
           addResultEvent("EventLog file: $eventLog")
         } else {
-          poTransaction.processCommands()
+          poTransaction.processCommands(false)
           addResultEvent("Counter value: ${readCounter(selectionsResult)}")
           addResultEvent(
               "EventLog file: ${
@@ -404,10 +398,6 @@ class MainActivity : AbstractExampleActivity() {
       transactionType: TransactionType
   ) {
     try {
-      //            addResultEvent("Tag Id : ${poReader.printTagId()}")
-      //            addActionEvent("Init Sam and open channel")
-      //            val samResource = checkSamAndOpenChannel(samReader)
-
       addActionEvent("1st PO exchange: aid selection")
       val selectionsResult =
           cardSelectionManager.parseScheduledCardSelectionsResponse(selectionsResponse)
@@ -435,20 +425,12 @@ class MainActivity : AbstractExampleActivity() {
              * Open Session for the debit key
              */
             addActionEvent("Process PO Opening session for transactions")
-            poTransaction.processOpening(WriteAccessLevel.LOAD)
-            addResultEvent("Opening session: SUCCESS")
-
-            poTransaction.prepareReadRecords(
-                CalypsoClassicInfo.SFI_Counter1,
-                CalypsoClassicInfo.RECORD_NUMBER_1.toInt(),
-                CalypsoClassicInfo.RECORD_NUMBER_1.toInt(),
-                CalypsoClassicInfo.RECORD_SIZE)
-            poTransaction.processCommands()
-
+            poTransaction.prepareOpenSecureSession(WriteAccessLevel.LOAD)
+            addActionEvent("Process PO increase counter by 10")
             poTransaction.prepareIncreaseCounter(
                 CalypsoClassicInfo.SFI_Counter1, CalypsoClassicInfo.RECORD_NUMBER_1.toInt(), 10)
-            addActionEvent("Process PO increase counter by 10")
-            poTransaction.processClosing()
+            poTransaction.prepareCloseSecureSession()
+            poTransaction.processCommands(false)
             addResultEvent("Increase by 10: SUCCESS")
           }
           TransactionType.DECREASE -> {
@@ -456,23 +438,15 @@ class MainActivity : AbstractExampleActivity() {
              * Open Session for the debit key
              */
             addActionEvent("Process PO Opening session for transactions")
-            poTransaction.processOpening(WriteAccessLevel.DEBIT)
-            addResultEvent("Opening session: SUCCESS")
-
-            poTransaction.prepareReadRecords(
-                CalypsoClassicInfo.SFI_Counter1,
-                CalypsoClassicInfo.RECORD_NUMBER_1.toInt(),
-                CalypsoClassicInfo.RECORD_NUMBER_1.toInt(),
-                CalypsoClassicInfo.RECORD_SIZE)
-            poTransaction.processCommands()
-
+            poTransaction.prepareOpenSecureSession(WriteAccessLevel.DEBIT)
             /*
              * A ratification command will be sent (CONTACTLESS_MODE).
              */
+            addActionEvent("Process PO decreasing counter and close transaction")
             poTransaction.prepareDecreaseCounter(
                 CalypsoClassicInfo.SFI_Counter1, CalypsoClassicInfo.RECORD_NUMBER_1.toInt(), 1)
-            addActionEvent("Process PO decreasing counter and close transaction")
-            poTransaction.processClosing()
+            poTransaction.prepareCloseSecureSession()
+            poTransaction.processCommands(false)
             addResultEvent("Decrease by 1: SUCCESS")
           }
         }
